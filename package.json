@@ -8,7 +8,7 @@
     "bundle": "browserify app/client.js --extension .jsx -t babelify | uglifyjs --compress --mangle > public/bundle.js",
     "watch": "npm run watch:js & npm run watch:server & wait",
     "watch:server": "nodemon --watch app app.js",
-    "watch:js": "watchify app/client.js -v --extension .jsx -t babelify -o public/bundle.js"
+    "watch:js": "watchify app/client.js -v --extension .jsx --debug -t babelify -o public/bundle.js"
   },
   "dependencies": {
     "babel": "5.2.15",
