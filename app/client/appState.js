@@ -1,15 +1,12 @@
 
 const React   = require('react'),
       Bacon   = require('baconjs'),
-      todos   = require('./todos'),
-      filter  = require('./filter')
+      forms  = require('./forms')
 
-module.exports = function({initialState, pathS}) {
-  const filterP  = filter.toProperty(initialState.filter, pathS || Bacon.never()),
-        itemsP   = todos.toItemsProperty(initialState.items, filterP)
+module.exports = function({initialState}) {
+  const itemsP   = forms.toItemsProperty(initialState.items)
 
   return Bacon.combineTemplate({
-    items: itemsP,
-    filter: filterP
+    items: itemsP
   })
 }

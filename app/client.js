@@ -2,17 +2,14 @@
 const React    = require('react'),
       Bacon    = require('baconjs'),
       appState = require('./client/appState'),
-      TodoApp  = require('./client/todoApp')
+      TodoApp  = require('./client/formApp')
 
-const pathStream = Bacon.fromBinder((sink) => {
-  window.onpopstate = () => sink(location.pathname)
-})
 
 const stateStream = appState({
-  initialState: window.INITIAL_MODEL,
-  pathS: pathStream
+  initialState: window.INITIAL_MODEL
 })
 
 stateStream.onValue((state) => {
+  console.log(state)
   React.render(<TodoApp {...state} />, document.getElementById('todoapp'))
 })

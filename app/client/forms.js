@@ -9,22 +9,22 @@ const d = new Dispatcher()
 module.exports = {
   toItemsProperty: function(initialItems, filterS) {
     const itemsS = Bacon.update(initialItems,
-      [d.stream('remove')],           removeItem,
-      [d.stream('create')],           createItem,
+      [d.stream('remove')],           deleteForm,
+      [d.stream('create')],           createForm,
       [d.stream('addState')],         addItemState,
       [d.stream('removeState')],      removeItemState,
       [d.stream('removeCompleted')],  removeCompleteItems,
-      [d.stream('updateTitle')],      updateItemTitle
+      [d.stream('updateForm')],       updateForm
     )
 
     return Bacon.combineAsArray([itemsS, filterS]).map(withDisplayStatus)
 
 
-    function createItem(items, newItemTitle) {
-      return items.concat([{id: Date.now(), title: newItemTitle, states: []}])
+    function createForm(items) {
+      return items.concat([{id: Date.now(), name: "", title: ""}])
     }
 
-    function removeItem(items, itemIdToRemove) {
+    function deleteForm(items, itemIdToRemove) {
       return R.reject(it => it.id === itemIdToRemove, items)
     }
 
@@ -40,8 +40,8 @@ module.exports = {
       return R.map(updateItem(itemId, it => R.merge(it, {states: R.reject(R.eq(state), it.states)})), items)
     }
 
-    function updateItemTitle(items, {itemId, title}) {
-      return R.map(updateItem(itemId, it => R.merge(it, {title})), items)
+    function updateForm(items, {itemId, name, title}) {
+      return R.map(updateItem(itemId, it => R.merge(it, {name, title})), items)
     }
 
     function withDisplayStatus([items, filter]) {
@@ -59,11 +59,11 @@ module.exports = {
 
   isEdited: isItemEdited,
 
-  createItem: function(title) {
-    d.push('create', title)
+  createForm: function() {
+    d.push('create')
   },
 
-  removeItem: function(itemId) {
+  deleteForm: function(itemId) {
     d.push('remove', itemId)
   },
 
@@ -71,8 +71,8 @@ module.exports = {
     d.push('removeCompleted')
   },
 
-  setTitle: function(itemId, title) {
-    d.push('updateTitle', {itemId, title})
+  updateForm: function(itemId, name, title) {
+    d.push('updateForm', {itemId, name, title})
   },
 
   setCompleted: function(itemId, completed) {
@@ -99,6 +99,6 @@ function isItemEdited(item) {
 }
 
 function updateItem(itemId, fn) {
-  return (it) => itemId === 'all' || it.id === itemId ? fn(it) : it
+  return (it) => it.id === itemId ? fn(it) : it
 }
 

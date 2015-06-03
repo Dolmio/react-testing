@@ -13,12 +13,14 @@
   "dependencies": {
     "babel": "5.2.15",
     "baconjs": "0.7.53",
+    "body-parser": "^1.12.4",
     "express": "^4.12.3",
     "ramda": "^0.13.0",
     "react": "0.13.2",
     "serve-static": "1.9.3",
     "todomvc-app-css": "1.0.0",
-    "todomvc-common": "1.0.1"
+    "todomvc-common": "1.0.1",
+    "whatwg-fetch": "^0.9.0"
   },
   "engines": {
     "node": "0.12.x"
