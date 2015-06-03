@@ -49,5 +49,17 @@ app.put('/:id', (req, res) => {
     res.send(200)
   }, 2500)
 })
+app.delete('/:id', (req, res) => {
+  setTimeout(() => {
+    const id = Number(req.params.id)
+    const item = items.find((it) => it.id === id)
+    if (item && item.name === "delfail") {
+      res.send(400)
+      return
+    }
+    items = R.reject((it) => it.id === id,items)
+    res.send(200)
+  }, 1200)
+})
 
 app.listen(3000, () => console.log('Server listening on port 3000'))

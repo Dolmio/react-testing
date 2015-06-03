@@ -10,7 +10,7 @@ module.exports = React.createClass({
   render: function() {
     return (
       <section>
-        {R.map(it => it.display ? <FormItem key={it.id} item={it} /> : '', this.props.items)}
+        {R.map(it => <FormItem key={it.id} item={it} />, this.props.items)}
       </section>
     )
   }

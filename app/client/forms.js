@@ -7,95 +7,82 @@ const Bacon       = require('baconjs'),
 const d = new Dispatcher()
 
 module.exports = {
-  toItemsProperty: function(initialItems, filterS) {
+  toItemsProperty: function(initialItems) {
     const itemsS = Bacon.update(initialItems,
       [d.stream('remove')],           deleteForm,
       [d.stream('create')],           createForm,
-      [d.stream('addState')],         addItemState,
-      [d.stream('removeState')],      removeItemState,
-      [d.stream('removeCompleted')],  removeCompleteItems,
       [d.stream('updateForm')],       updateForm
     )
 
-    return Bacon.combineAsArray([itemsS, filterS]).map(withDisplayStatus)
+    return itemsS.toProperty()
 
 
     function createForm(items) {
-      return items.concat([{id: Date.now(), name: "", title: ""}])
+      return items.concat([{id: Date.now(), name: "", title: "", isBrowserOnly: true, isEditing: true}])
     }
 
     function deleteForm(items, itemIdToRemove) {
       return R.reject(it => it.id === itemIdToRemove, items)
     }
 
-    function removeCompleteItems(items) {
-      return R.reject(isItemCompleted, items)
-    }
-
-    function addItemState(items, {itemId, state}) {
-      return R.map(updateItem(itemId, it => R.merge(it, {states: R.union(it.states, [state])})), items)
-    }
-
-    function removeItemState(items, {itemId, state}) {
-      return R.map(updateItem(itemId, it => R.merge(it, {states: R.reject(R.eq(state), it.states)})), items)
-    }
-
-    function updateForm(items, {itemId, name, title}) {
-      return R.map(updateItem(itemId, it => R.merge(it, {name, title})), items)
-    }
-
-    function withDisplayStatus([items, filter]) {
-      function setDisplay(it) {
-        const display = filter === 'completed' ? isItemCompleted(it) : filter === 'active' ? !isItemCompleted(it) : true
-        return R.merge(it, {display})
-      }
-      return R.map(setDisplay, items)
+    function updateForm(items, newItem) {
+      return R.map(updateItem(newItem.id, it => R.merge(it, newItem)), items)
     }
   },
 
   // "public" methods
 
-  isCompleted: isItemCompleted,
-
-  isEdited: isItemEdited,
-
   createForm: function() {
     d.push('create')
   },
 
-  deleteForm: function(itemId) {
-    d.push('remove', itemId)
+  deleteForm: function(item) {
+    if (item.isBrowserOnly) {
+      d.push('remove', item.id)
+    } else {
+      d.push('updateForm', {id: item.id, error: false, deleteInProgress: true})
+      fetch('/' + item.id,
+        {
+          method: 'delete'
+        }
+      ).then((response) => {
+        if (response.status != 200) {
+          throw "failure"
+        }
+        d.push('remove', item.id)
+      }).catch(() => {
+        d.push('updateForm', {id: item.id, error: true, deleteInProgress: false})
+      })
+    }
   },
 
-  removeCompleted: function() {
-    d.push('removeCompleted')
+  updateForm: function(id, name, title) {
+    d.push('updateForm', {id, name, title, busy: true, error: false})
+    fetch('/' + id,
+      {
+        method: 'put',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name: name,
+          title: title
+        })
+      }
+    ).then((response) => {
+      if (response.status != 200) {
+        throw "failure"
+      }
+      d.push('updateForm', {id, busy: false, error: false, isBrowserOnly: false, isEditing: false})
+    }).catch(() => {
+      d.push('updateForm', {id, busy: false, error: true})
+    })
   },
 
-  updateForm: function(itemId, name, title) {
-    d.push('updateForm', {itemId, name, title})
+  startEditing: function(id) {
+    d.push('updateForm', {id, isEditing: true})
   },
-
-  setCompleted: function(itemId, completed) {
-    d.push(completed ? 'addState' : 'removeState', {itemId, state: 'completed'})
-  },
-
-  setAllCompleted: function(completed) {
-    d.push(completed ? 'addState' : 'removeState', {itemId: 'all', state: 'completed'})
-  },
-
-  setEditing: function(itemId, editing) {
-    d.push(editing ? 'addState' : 'removeState', {itemId, state: 'editing'})
+  cancelEditing: function(id) {
+    d.push('updateForm', {id, isEditing: false})
   }
-
-}
-
-
-function isItemCompleted(item) {
-  return R.contains('completed', item.states)
-}
-
-function isItemEdited(item) {
-  return R.contains('editing', item.states)
 }
 
 function updateItem(itemId, fn) {
