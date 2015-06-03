@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "bundle": "browserify app/client.js --extension .jsx -t babelify > public/bundle.js",
+    "bundle": "browserify app/client.js --extension .jsx -t babelify | uglifyjs --compress --mangle > public/bundle.js",
     "watch": "npm run watch:js & npm run watch:server & wait",
     "watch:server": "nodemon --watch app app.js",
     "watch:js": "watchify app/client.js -v --extension .jsx -t babelify -o public/bundle.js"
@@ -20,6 +20,7 @@
     "serve-static": "1.9.3",
     "todomvc-app-css": "1.0.0",
     "todomvc-common": "1.0.1",
+    "uglify-js": "^2.4.23",
     "whatwg-fetch": "^0.9.0"
   },
   "engines": {
