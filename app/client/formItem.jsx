@@ -3,6 +3,9 @@ const React = require('react'),
       forms = require('./forms')
 
 module.exports = React.createClass({
+  getInitialState: function() {
+    return this.props.item
+  },
   stateFieldSetter: function(fieldName) {
     var component = this
     return function (event) {
@@ -32,8 +35,8 @@ module.exports = React.createClass({
         {!this.props.item.isEditing ?
           (
             <div>
-              <span>Name: {this.props.item.name}</span><br/>
-              <span>Title: {this.props.item.title}</span><br/>
+              <span>Name: {item.name}</span><br/>
+              <span>Title: {item.title}</span><br/>
               <button onClick={this.startEditing}>Edit</button>
             </div>
           ) :
@@ -41,7 +44,7 @@ module.exports = React.createClass({
             <div>
               <label>Name: <input type="text" onChange={this.stateFieldSetter('name')} value={this.state.name}/></label><br/>
               <label>Title: <input type="text" onChange={this.stateFieldSetter('title')} value={this.state.title}/></label><br/>
-              <button onClick={this.cancelEditing}>Cancel</button>
+              {item.isBrowserOnly ? null : <button onClick={this.cancelEditing}>Cancel</button>}
               <button onClick={this.saveForm}>Save</button>
               <button onClick={this.deleteForm}>Delete</button>
               {this.props.item.error ? <p>Error in saving or deleting!</p> : null}

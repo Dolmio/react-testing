@@ -11,5 +11,5 @@ const stateStream = appState({
 
 stateStream.onValue((state) => {
   console.log(state)
-  React.render(<TodoApp {...state} />, document.getElementById('todoapp'))
+  React.render(<TodoApp {...state} />, document.getElementById('formapp'))
 })
