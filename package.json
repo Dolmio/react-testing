@@ -5,10 +5,12 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "bundle": "browserify app/client.js --extension .jsx -t babelify | uglifyjs --compress --mangle > public/bundle.js",
-    "watch": "npm run watch:js & npm run watch:server & node_modules/.bin/livereactload monitor -n public/bundle.js & wait",
+    "bundle": "browserify app/client.js --extension .jsx -t babelify | node_modules/.bin/uglifyjs --compress --mangle > public/bundle.js && npm run bundle:css",
+    "watch": "npm run watch:js & npm run watch:server & npm run watch:css & node_modules/.bin/livereactload monitor -n public/bundle.js & wait",
     "watch:server": "nodemon --watch app app.js",
-    "watch:js": "watchify app/client.js -v --extension .jsx --debug -t babelify -t livereactload -o public/bundle.js"
+    "watch:js": "node_modules/.bin/watchify app/client.js -v --extension .jsx --debug -t babelify -t livereactload -o public/bundle.js",
+    "watch:css": "nodemon -e css -i ./public/ -x \"npm run bundle:css\"",
+    "bundle:css": "node_modules/.bin/postcss --use autoprefixer app/client/css/*.css -d public/"
   },
   "dependencies": {
     "babel": "5.2.15",
@@ -20,16 +22,18 @@
     "serve-static": "1.9.3",
     "todomvc-app-css": "1.0.0",
     "todomvc-common": "1.0.1",
-    "uglify-js": "^2.4.23",
     "whatwg-fetch": "^0.9.0"
   },
   "engines": {
     "node": "0.12.x"
   },
   "devDependencies": {
+    "autoprefixer": "^5.2.0",
     "babelify": "6.0.2",
     "browserify": "10.1.0",
     "livereactload": "^0.5.2",
+    "postcss-cli": "^1.3.1",
+    "uglify-js": "^2.4.23",
     "watchify": "3.2.1"
   }
 }

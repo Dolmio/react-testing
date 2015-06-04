@@ -4,4 +4,4 @@ logs
 node_modules
 .idea
 public/bundle.js
-public/.bundle.js
+public/index.css
