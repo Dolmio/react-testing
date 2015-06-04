@@ -3,14 +3,26 @@ const React    = require('react'),
       Bacon    = require('baconjs'),
       appState = require('./client/appState'),
       TodoApp  = require('./client/formApp'),
-      fetch    = require("whatwg-fetch")
+      fetch    = require("whatwg-fetch"),
+      lrApi = require('livereactload-api')
 
 
-const stateStream = appState({
-  initialState: window.INITIAL_MODEL
-})
+window.onload = function() {
+  initApp(window.INITIAL_MODEL)
+}
 
-stateStream.onValue((state) => {
-  console.log(state)
-  React.render(<TodoApp {...state} />, document.getElementById('formapp'))
+function initApp(model) {
+  const stateStream = appState({
+    initialState: model
+  })
+
+  stateStream.onValue((state) => {
+    console.log(state)
+    lrApi.setState(state)
+    React.render(<TodoApp {...state} />, document.getElementById('formapp'))
+  })
+}
+
+lrApi.onReload(function() {
+  initApp(lrApi.getState() || window.INITIAL_MODEL)
 })
