@@ -30,6 +30,7 @@ module.exports = React.createClass({
   render: function() {
     const item = this.props.item
     const classes = "formItem" + (this.props.item.busy ? " busy" : "")
+    const validForm = this.state.name.length > 0 && this.state.title.length > 0
     return (this.props.item.deleteInProgress ? null :
       <div className={classes}>
         {!this.props.item.isEditing ?
@@ -45,7 +46,7 @@ module.exports = React.createClass({
               <label>Name: <input type="text" onChange={this.stateFieldSetter('name')} value={this.state.name}/></label><br/>
               <label>Title: <input type="text" onChange={this.stateFieldSetter('title')} value={this.state.title}/></label><br/>
               {item.isBrowserOnly ? null : <button onClick={this.cancelEditing}>Cancel</button>}
-              <button onClick={this.saveForm}>Save</button>
+              <button onClick={this.saveForm} disabled={!validForm}>Save</button>
               <button onClick={this.deleteForm}>Delete</button>
               {this.props.item.error ? <p>Error in saving or deleting!</p> : null}
             </div>
