@@ -6,9 +6,9 @@
   "private": false,
   "scripts": {
     "bundle": "browserify app/client.js --extension .jsx -t babelify | uglifyjs --compress --mangle > public/bundle.js",
-    "watch": "npm run watch:js & npm run watch:server & wait",
+    "watch": "npm run watch:js & npm run watch:server & node_modules/.bin/livereactload monitor -n public/bundle.js & wait",
     "watch:server": "nodemon --watch app app.js",
-    "watch:js": "watchify app/client.js -v --extension .jsx --debug -t babelify -o public/bundle.js"
+    "watch:js": "watchify app/client.js -v --extension .jsx --debug -t babelify -t livereactload -o public/bundle.js"
   },
   "dependencies": {
     "babel": "5.2.15",
@@ -29,6 +29,7 @@
   "devDependencies": {
     "babelify": "6.0.2",
     "browserify": "10.1.0",
+    "livereactload": "^0.5.2",
     "watchify": "3.2.1"
   }
 }
